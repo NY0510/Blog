@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[Oracle] Swap 설정 및 Nginx서버 설치 - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[Oracle] Swap 설정 및 Nginx서버 설치 | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[Oracle] Swap 설정 및 Nginx서버 설치 | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="오라클 클라우드 무료티어를 사용해 나만의 '평생' 무료 VPS를 만들어보자 [2]" />
+	<meta property="og:description" content="오라클 클라우드 무료티어를 사용해 나만의 '평생' 무료 VPS를 만들어보자 [2]" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/oracle-cloud-swap-setup-and-nginx-installation/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/oracle-cloud-swap-setup-and-nginx-installation/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[Oracle] Swap 설정 및 Nginx서버 설치 | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[Oracle] Swap 설정 및 Nginx서버 설치</div>
+	<span class="post-date">
+		<time>16 Feb 2022</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Ubuntu">
+					<span>Ubuntu</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Oracle Cloud">
+					<span>Oracle Cloud</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Cloud">
+					<span>Cloud</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Server">
+					<span>Server</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Nginx">
+					<span>Nginx</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Swap">
+					<span>Swap</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p><a href="https://blog.ny64.kr/posts/create-your-own-lifetime-free-server-using-oracle-cloud/">지난번</a>에 만든 오라클 평생 무료 서버에 SWAP 설정과 Nginx설치 및 방화벽 설정을 해 봅시다.</p>
+
+<p><br /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-i</span> <span class="s1">'Private KEY'</span> ubuntu@IP주소
+</code></pre></div></div>
+
+<p>서버에 SSH 접속을 합니다.</p>
+
+<p><br /></p>
+
+<h2 id="swap-설정">SWAP 설정</h2>
+
+<p>우리가 만든 평생 무료 서버는 <strong>1GB</strong>의 RAM을 가지고 있어, 램이 부족한 상황을 예방하기 위해 <strong>4GB</strong>의 SWAP을 생성해 줍시다.</p>
+
+<p>이전에 SWAP에 대해 다룬 적이 있기 때문에 이 글에서는 자세한 설명은 생략하겠습니다.</p>
+
+<p>명령어별 자세한 설명을 원한다면 <a href="https://blog.ny64.kr/posts/setting-up-swap-on-raspberry-pi/">이 글</a>을 참고하시기 바랍니다.</p>
+
+<p>아래 명령어를 차례대로 실행합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>fallocate <span class="nt">-l</span> 4G /swapfile
+<span class="nb">sudo chmod </span>600 /swapfile
+<span class="nb">sudo </span>mkswap /swapfile
+<span class="nb">sudo </span>swapon /swapfile
+</code></pre></div></div>
+
+<p><br />
+그리고 나서 서버를 재시작해도 설정값이 유지되도록 <code class="language-plaintext highlighter-rouge">/etc/fstab</code>을 수정해 줍시다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>nano /etc/fstab
+</code></pre></div></div>
+
+<p><br />
+제일 하단에 아래 내용을 추가하고 저장합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/swapfile swap swap defaults 0 0
+</code></pre></div></div>
+
+<p><br />
+이제 <code class="language-plaintext highlighter-rouge">free -h</code> 명령어를 사용해 보시면 우리가 설정한 <strong>4GB</strong>의 SWAP이 잘 잡혀있는걸 확인할 수 있습니다.</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ubuntu@OracleVM:~<span class="nv">$ </span>free <span class="nt">-h</span>
+              total        used        free      shared  buff/cache   available
+Mem:          972Mi       281Mi       107Mi       0.0Ki       583Mi       553Mi
+Swap:         4.0Gi       118Mi       3.9Gi
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="nginx-설치">Nginx 설치</h2>
+
+<p>24시간 가동되는 오라클 서버에 간단한 웹 서버를 설치해 봅시다.</p>
+
+<p>업데이트 후 Nginx 웹서버를 설치합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>nginx <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p><br />
+Nginx 서비스가 정상 작동 중인 것을 확인할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ubuntu@OracleVM:~<span class="nv">$ </span>systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+     Loaded: loaded <span class="o">(</span>/lib/systemd/system/nginx.service<span class="p">;</span> enabled<span class="p">;</span> vendor preset: enabled<span class="o">)</span>
+     Active: active <span class="o">(</span>running<span class="o">)</span> since Mon 2022-01-31 13:44:32 KST<span class="p">;</span> 2 weeks 2 days ago
+       Docs: man:nginx<span class="o">(</span>8<span class="o">)</span>
+   Main PID: 16284 <span class="o">(</span>nginx<span class="o">)</span>
+      Tasks: 3 <span class="o">(</span>limit: 1110<span class="o">)</span>
+     Memory: 3.1M
+     CGroup: /system.slice/nginx.service
+             ├─16284 nginx: master process /usr/sbin/nginx <span class="nt">-g</span> daemon on<span class="p">;</span> master_process on<span class="p">;</span>
+             ├─16285 nginx: worker process
+             └─16286 nginx: worker process
+
+Jan 31 13:44:32 OracleVM systemd[1]: Starting A high performance web server and a reverse proxy server...
+Jan 31 13:44:32 OracleVM systemd[1]: Started A high performance web server and a reverse proxy server.
+</code></pre></div></div>
+
+<p>혹시나 설치 후 서비스 자동 시작이 안되는 경우는 아래 명령어를 실행해 주세요.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>systemctl <span class="nb">enable </span>nginx
+<span class="nb">sudo </span>systemctl start nginx
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="방화벽-설정">방화벽 설정</h2>
+
+<p>지금 이 상태에서는 80번 포트가 열려있지 않아 웹 서버에 접속할 수 없습니다.</p>
+
+<p><a href="https://cloud.oracle.com/">오라클 클라우드</a>에 접속한 뒤</p>
+
+<p>컴퓨트 &gt; 인스턴트 &gt; 자신의 인스턴트 상세페이지로 이동한 다음 서브넷을 클릭합니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-02-16-oracle-cloud-swap-setup-and-nginx-installation/image01.png" alt="인스턴트 상세페이지" /></p>
+
+<p><br />
+그런 다음 보안 목록을 클릭합니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-02-16-oracle-cloud-swap-setup-and-nginx-installation/image02.png" alt="서브넷 상세페이지" /></p>
+
+<p><br />
+80번 포트에 대한 수신 규칙을 추가합니다.</p>
+
+<ul>
+  <li><strong>소스 CIDR:</strong> 0.0.0.0/0</li>
+  <li><strong>IP 프로토콜:</strong> TCP</li>
+  <li><strong>소스 포트 범위:</strong> 80</li>
+  <li><strong>대상 포트 범위:</strong> 80</li>
+</ul>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-02-16-oracle-cloud-swap-setup-and-nginx-installation/image03.png" alt="수신규칙 추가" /></p>
+
+<p><br />
+이제 클라우드 웹 패널에서 할 작업은 모두 끝났고, SSH로 돌아가 아래 명령어로 <code class="language-plaintext highlighter-rouge">iptables</code>의 80번 포트를 열어줍시다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>iptables <span class="nt">-I</span> INPUT 1 <span class="nt">-p</span> tcp <span class="nt">--dport</span> 80 <span class="nt">-j</span> ACCEPT
+</code></pre></div></div>
+
+<p><br />
+방화벽 설정이 정상적으로 적용되었는지 확인을 위해 오라클 클라우드 IP를 주소창에 입력해서 접속해 보세요.</p>
+
+<p>아래처럼 Nginx 기본 페이지가 나오면 성공입니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-02-16-oracle-cloud-swap-setup-and-nginx-installation/image04.png" alt="Welcome to the nginx" /></p>
+
+<p><br />
+서버에 설치된 Nginx 웹서버를 파일서버, 정적 웹서버, 프록싱 서버 등 다양한 용도로 활용할 수 있습니다.</p>
+
+<p><br /></p>
+<blockquote>
+  <p>오라클 클라우드 포스트 3편에서는 <strong>SSL 인증서</strong> 발급 및 자동 갱신과 <strong>Nginx 설정</strong>에 대해 다뤄보도록 하겠습니다.</p>
+</blockquote>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>

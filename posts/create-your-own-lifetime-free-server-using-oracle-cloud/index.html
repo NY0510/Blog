@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[Oracle] 나만의 '평생' 무료 서버 만들기 - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[Oracle] 나만의 '평생' 무료 서버 만들기 | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[Oracle] 나만의 '평생' 무료 서버 만들기 | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="오라클 클라우드 무료티어를 사용해 나만의 '평생' 무료 VPS를 만들어보자 [1]" />
+	<meta property="og:description" content="오라클 클라우드 무료티어를 사용해 나만의 '평생' 무료 VPS를 만들어보자 [1]" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/create-your-own-lifetime-free-server-using-oracle-cloud/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/create-your-own-lifetime-free-server-using-oracle-cloud/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[Oracle] 나만의 '평생' 무료 서버 만들기 | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[Oracle] 나만의 '평생' 무료 서버 만들기</div>
+	<span class="post-date">
+		<time>31 Jan 2022</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Ubuntu">
+					<span>Ubuntu</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Oracle Cloud">
+					<span>Oracle Cloud</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Cloud">
+					<span>Cloud</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Server">
+					<span>Server</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p>오라클에서는 평생 무료 이용 가능한 서버를 제공하고 있습니다.</p>
+
+<p><strong>Google Cloud</strong>의 평생 무료 서버와 비교해보면 아래와 같습니다.</p>
+
+<p><strong>오라클 클라우드</strong>가 CPU, RAM, Disk, Network Outbound 같은 측면에서 <strong>구글 클라우드</strong>보다 훨씬 우위에 있습니다.</p>
+
+<p>VM 개수는 <strong>오라클 클라우드</strong>에선 2개까지 무료이고, <strong>구글 클라우드</strong>는 개수 제한은 없으나 VM의 사용시간 총합이 월 744시간 까지만 무료입니다. 이는 1개의 VM을 1달 동안 24시간 사용하는 시간과 동일합니다.</p>
+
+<p>웹 서버로 운영하기 위해선 고정IP가 필요한데 <strong>오라클 클라우드</strong>는 무료로 고정IP를 할당할 수 있고, <strong>구글 클라우드는</strong> 사용 시간에 비례하여 유료로 제공합니다.</p>
+
+<p>결과적으로 <strong>오라클 클라우드</strong> 성능적인 면과 사용성 모두 우위에 있습니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>비교 대상</th>
+      <th>오라클 클라우드</th>
+      <th>구글 클라우드</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>VM 종류</td>
+      <td>E2.1.Micro</td>
+      <td>f1-micro</td>
+    </tr>
+    <tr>
+      <td>CPU</td>
+      <td><strong><em>OCPU 1/8</em></strong></td>
+      <td>vCPU 1</td>
+    </tr>
+    <tr>
+      <td>RAM</td>
+      <td><strong><em>1GB</em></strong></td>
+      <td>614MB</td>
+    </tr>
+    <tr>
+      <td>Disk</td>
+      <td><strong><em>최대 100GB</em></strong></td>
+      <td>30GB 까지 무료</td>
+    </tr>
+    <tr>
+      <td>Network Out</td>
+      <td><strong><em>10TB</em></strong></td>
+      <td>1GB</td>
+    </tr>
+    <tr>
+      <td>사용 기간</td>
+      <td><strong><em>평생</em></strong></td>
+      <td>744시간/월</td>
+    </tr>
+    <tr>
+      <td>VM 지역</td>
+      <td><strong><em>지역 제한 없음</em></strong></td>
+      <td>us-west1, us-central1, us-east1</td>
+    </tr>
+    <tr>
+      <td>공인 IP</td>
+      <td><strong><em>고정IP 무료</em></strong></td>
+      <td>고정 IP 유료</td>
+    </tr>
+    <tr>
+      <td>OS</td>
+      <td>Linux 배포판 무료</td>
+      <td>=</td>
+    </tr>
+    <tr>
+      <td>관련 문서</td>
+      <td>구글에 비해 빈약함</td>
+      <td><strong><em>풍부</em></strong></td>
+    </tr>
+    <tr>
+      <td>기술 지원</td>
+      <td><strong><em>실시간 채팅 가능 (영어)</em></strong></td>
+      <td>불가능</td>
+    </tr>
+    <tr>
+      <td>Cloud UI 사용성</td>
+      <td>Web UI</td>
+      <td><strong><em>Web UI (오라클에 비해 직관적)</em></strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<h2 id="oracle-cloud-평생-무료-vps-만들기">Oracle Cloud 평생 무료 VPS 만들기</h2>
+
+<p><a href="https://www.oracle.com/kr/cloud/free/">Oracle Cloud 홈페이지</a>에 게시된 무료 조건은 아래와 같습니다.</p>
+
+<p><del>AWS를 비교 대상으로 삼고 있네요</del></p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-01-31-create-your-own-lifetime-free-server-using-oracle-cloud/oracle-cloud-main-img.png" alt="상시 무료 클라우드" /></p>
+
+<p><br /></p>
+
+<h3 id="oracle-cloud-계정-생성">Oracle Cloud 계정 생성</h3>
+
+<p>먼저 <a href="https://signup.cloud.oracle.com/">여기</a>에서 계정을 만들어줘야 합니다.</p>
+
+<p>게정 생성 시 본인인증을 위한 <strong>신용카드 등록</strong>이 필요하며, 유효성을 확인하기 위해 1원 결제 후 바로 취소가 됩니다.</p>
+
+<p>유료 VM을 사용하지 않는 한 결제가 되는 일은 없습니다.</p>
+
+<p>계정 생성시 선택하는 VM Region은 <strong>한번 선택</strong>하면 <strong>변경할 수 없으니</strong> 신중하게 선택해야 합니다.</p>
+
+<blockquote>
+  <p>저는 서울은 사용자가 너무 많을 거 같아 <strong>대한민국/춘천</strong>으로 선택했습니다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<h3 id="vm-instance-생성">VM Instance 생성</h3>
+
+<p>회원가입을 완료한 뒤, <a href="https://cloud.oracle.com/">Oracle Cloud</a>에 접속해 <strong>VM 인스턴스 생성</strong>을 클릭합니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-01-31-create-your-own-lifetime-free-server-using-oracle-cloud/make-vm.jpg" alt="오라클 클라우드 메인 페이지" /></p>
+
+<p><br />
+다음과 같이 <strong>VM 인스턴스를</strong> 생성합니다.</p>
+
+<ol>
+  <li>VM 이름 입력</li>
+  <li>OS 선택 (Oracle Linux 기본, Ubuntu 선택 가능)</li>
+  <li>SSH 키 저장</li>
+</ol>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-01-31-create-your-own-lifetime-free-server-using-oracle-cloud/make-vm-2.jpg" alt="VM Instance 생성" /></p>
+
+<p><br /></p>
+
+<h2 id="생성-확인-및-ssh-접속">생성 확인 및 SSH 접속</h2>
+
+<p>VM 생성이 완료되었다면 <a href="https://cloud.oracle.com/compute/instances">여기</a>에서 VM 정보를 확인할 수 있습니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2022-01-31-create-your-own-lifetime-free-server-using-oracle-cloud/vm-info.png" alt="VM 정보 확인" /></p>
+
+<p>VM Instance를 생성할 때 다운받았던 <strong>SSH 키</strong>를 이용해 <strong>인스턴스 엑세스 항목</strong>에 있는 IP로 접속합니다</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ssh <span class="nt">-i</span> <span class="s1">'다운받은 Private KEY'</span> ubuntu@IP주소
+</code></pre></div></div>
+
+<p><br />
+아래와 같이 <strong>1GB RAM</strong>과 <code class="language-plaintext highlighter-rouge">/dev/sda1</code>에 마운트된 <strong>50GB 스토리지</strong>를 확인할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ubuntu@OracleVM:~<span class="nv">$ </span>free <span class="nt">-h</span>
+              total        used        free      shared  buff/cache   available
+Mem:          972Mi       141Mi        98Mi       1.0Mi       732Mi       698Mi
+Swap:         4.0Gi       1.0Mi       4.0Gi
+
+ubuntu@OracleVM:~<span class="nv">$ </span><span class="nb">df
+</span>Filesystem     1K-blocks    Used Available Use% Mounted on
+udev              473868       0    473868   0% /dev
+tmpfs              99548    1000     98548   2% /run
+/dev/sda1       47156192 5928456  41211352  13% /
+tmpfs             497736       0    497736   0% /dev/shm
+tmpfs               5120       0      5120   0% /run/lock
+tmpfs             497736       0    497736   0% /sys/fs/cgroup
+/dev/loop0         56832   56832         0 100% /snap/core18/2253
+/dev/loop1         59520   59520         0 100% /snap/oracle-cloud-agent/26
+/dev/loop2         43264   43264         0 100% /snap/snapd/14066
+/dev/sda15        106858    5321    101537   5% /boot/efi
+/dev/loop3         56960   56960         0 100% /snap/core18/2284
+/dev/loop4         44544   44544         0 100% /snap/snapd/14549
+/dev/loop5         59904   59904         0 100% /snap/oracle-cloud-agent/30
+tmpfs              99544       0     99544   0% /run/user/1001
+</code></pre></div></div>
+
+<p><br /></p>
+<blockquote>
+  <p>다음 포스트에서는 <strong>SWAP 설정, Nginx 웹서버 설치, 방화벽 설정</strong> 등에 대해 다뤄보도록 하겠습니다.</p>
+</blockquote>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>

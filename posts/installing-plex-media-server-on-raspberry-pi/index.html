@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[RPI] Plex Media Server 설치하기 - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[RPI] Plex Media Server 설치하기 | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[RPI] Plex Media Server 설치하기 | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="설치와 기본 설정까지" />
+	<meta property="og:description" content="설치와 기본 설정까지" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/installing-plex-media-server-on-raspberry-pi/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/installing-plex-media-server-on-raspberry-pi/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[RPI] Plex Media Server 설치하기 | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[RPI] Plex Media Server 설치하기</div>
+	<span class="post-date">
+		<time>22 Jul 2021</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Raspberry PI">
+					<span>Raspberry PI</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Plex Media Server">
+					<span>Plex Media Server</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p>이번 포스트에서는 라즈베리파이에 미디어 서버를 구축해</p>
+
+<p>언제 어디서나 인터넷만 연결돼있으면 쉽고 편리하게 미디어를 감상할 수 있게 만들어 보겠습니다.</p>
+
+<h2 id="plex-media-server">Plex Media Server?</h2>
+
+<p>미디어 서버는 저장된 미디어를 스트리밍으로 볼 수 있게 해주는 서버입니다.</p>
+
+<p>라즈베리파이에 설치할 수 있는 미디어 서버는 다양하지만 오늘은 가장 인기 있고, 사용하기 편한 미디어 서버 중 하나인 <strong>플렉스 미디어 서버</strong>를 설치해볼 예정입니다</p>
+
+<p>FHD로 원활하게 영상을 스트리밍하기 위해서는 라즈베리파이4 이상을 권장합니다.</p>
+
+<h2 id="설치하기">설치하기</h2>
+
+<p>일단 업데이트/업그레이드 부터!</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get upgrade
+</code></pre></div></div>
+
+<p><br />
+<code class="language-plaintext highlighter-rouge">Repository</code>를 추가합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>apt-transport-https
+
+curl https://downloads.plex.tv/plex-keys/PlexSign.key | <span class="nb">sudo </span>apt-key add -
+
+<span class="nb">echo </span>deb https://downloads.plex.tv/repo/deb public main | <span class="nb">sudo tee</span> /etc/apt/sources.list.d/plexmediaserver.list
+</code></pre></div></div>
+
+<p><br />
+<code class="language-plaintext highlighter-rouge">Repository list</code>를 업데이트하고, Plex Media Server를 설치합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get update
+
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>plexmediaserver <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p><br />
+만약 이런 경고가 나온다면, <code class="language-plaintext highlighter-rouge">systemctl daemon-reload</code>를 실행해 줍시다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Warning: The unit file, source configuration file or drop-ins of plexmediaserver.
+service changed on disk. Run 'systemctl daemon-reload' to reload units.
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="접속하기">접속하기</h2>
+
+<p>설치가 성공적으로 완료되었다면, 이제 접속해볼까요?</p>
+
+<p><code class="language-plaintext highlighter-rouge">ifconfig</code>등으로 라즈베리파이의 IP주소를 확인한 뒤 <code class="language-plaintext highlighter-rouge">http://IP:32400/web</code>으로 접속합니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-login-page.png" alt="플렉스 미디어 서버 로그인 페이지" width="60%" /></p>
+
+<p>이런 화면이 나오면 성공입니다.</p>
+
+<p>위와 같이 <strong>구글, 페이스북, 애플 계정</strong>으로 연동하셔도 되고, 아니면 밑에 <strong>sign up with email</strong>을 눌러 회원가입을 하셔도 됩니다.</p>
+
+<p>로그인해보면 해보면 아래와 같은 화면이 뜹니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-main-page.png" alt="플렉스 미디어 서버 메인 페이지" width="100%" /></p>
+
+<p>여기 나오는 <strong>영화, 뉴스, 팟캐스트</strong> 등은 플렉스에서 기본으로 제공 해주는 미디어 들입니다.</p>
+
+<p><br /></p>
+
+<h2 id="usb마운트">USB마운트</h2>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/raspberrypi.jpg" alt="라즈베레파이" width="45%" /></p>
+
+<p>리눅스에서는 USB를 연결하면 바로 사용할 수 있는게 아니라 직접 사용하고 싶은 폴더에 마운트 해줘야 합니다.</p>
+
+<p>USB를 연결하고,
+<code class="language-plaintext highlighter-rouge">fdisk</code>명령어로 파티션 목록을 확인합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>fdisk <span class="nt">-l</span>
+</code></pre></div></div>
+
+<p>제일 아래 줄을 보면 64GB USB가 <code class="language-plaintext highlighter-rouge">/dev/sda1</code>에 할당되어 있다는 것을 확인 할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Device     Boot Start       End   Sectors  Size Id Type
+/dev/sda1        2048 120174591 120172544 57.3G  7 HPFS/NTFS/exFAT
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>USB를 마운트 하기 위해서는 마운트를 할 폴더를 하나 만들어야 합니다.</p>
+
+<p>폴더의 위치와 이름은 상관없지만, 저는 편의를 위해서 루트 폴더에 <strong>plex</strong>라는 폴더를 만들겠습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo mkdir</span> /plex
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>이제 이 폴더에 USB를 마운트하기 위해 아래와 같이 입력합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>mount <span class="nt">-t</span> auto /dev/sda1 /plex
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>만약 이렇게 했는데 USB의 파일시스템이 NTFS라서 오류가 날 경우 아래와 같이 <code class="language-plaintext highlighter-rouge">ntfs-3g</code>패키지를 설치한 다음 마운트해주면 됩니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>ntfs-3g
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>라즈베리파이를 재부팅 해도 자동으로 USB가 마운트 되도록 <code class="language-plaintext highlighter-rouge">/etc/fstab</code>를 수정해 줍시다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>nano /etc/fstab
+</code></pre></div></div>
+
+<p>그리고 제일 하단에 아래와 같이 한 줄을 추가합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/dev/sda1 /plex auto defaults 0 0
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>그럼 아래와 같이 마운트한 폴더에 영화들이 잘 나오는 것을 확인할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>NY@RPI:~<span class="nv">$ </span><span class="nb">ls</span> <span class="nt">-al</span> /plex/
+total 1156
+drwxr-xr-x 10 root root 131072 Jul 19 20:10  <span class="nb">.</span>
+drwxr-xr-x 22 root root   4096 Jul  1 19:31  ..
+drwxr-xr-x  7 root root 131072 May 29 11:15 <span class="s1">'Animated Film'</span>
+drwxr-xr-x  2 root root 131072 May 29 04:10  Animation
+drwxr-xr-x  5 root root 131072 May 29 11:15 <span class="s1">'Ghibli Movies'</span>
+drwxr-xr-x 11 root root 131072 Jun 12 21:37  Movies
+drwxr-xr-x  3 root root 131072 May 29 11:38 <span class="s1">'TV Shows'</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="plex-설정하기">Plex 설정하기</h2>
+
+<p>이제 다시 브라우저로 돌아와 마운트한 USB를 라이브러리로 추가해 줍시다.</p>
+
+<p>왼쪽 위 메뉴에서 <strong>더보기</strong>를 클릭한 후
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-setting-1.png" alt="플렉스 미디어 서버 설정-1" width="40%" /></p>
+
+<p><strong>플러스 버튼</strong>을 클릭
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-setting-2.png" alt="플렉스 미디어 서버 설정-2" width="40%" /></p>
+
+<p>라이브러리 추가 창에서 원하는 <strong>유형, 언어, 이름</strong>을 설정하고 <strong>폴더추가 버튼</strong>을 누릅니다.
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-setting-3.png" alt="플렉스 미디어 서버 설정-3" width="80%" /></p>
+
+<p><strong>미디어 폴더 찾아보기</strong>를 클릭한 다음
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-setting-4.png" alt="플렉스 미디어 서버 설정-4" width="80%" /></p>
+
+<p><strong>원하는 폴더(마운트한 폴더)</strong>를 선택하고
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-setting-5.png" alt="플렉스 미디어 서버 설정-5" width="80%" /></p>
+
+<p><strong>라이브러리 추가</strong>를 클릭해 라이브러리에 추가합니다.
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-setting-6.png" alt="플렉스 미디어 서버 설정-6" width="80%" /></p>
+
+<p><br /></p>
+
+<p>그럼 아래 사진처럼 USB안에 있었던 영화들이 정리되어 표시되는걸 확인할 수 있습니다.
+<img src="https://blog.ny64.kr/assets/images/2021-07-22-installing-plex-media-server-on-raspberry-pi/plex-main-page after-setup.png" alt="설정 후 플렉스 미디어 서버 메인 페이지" width="100%" /></p>
+
+<hr />
+
+<blockquote>
+  <p>플렉스를 미디어 서버로 활용할 때의 큰 강점은 미디어 서버를 구축해 놓은 뒤에 친구나 가족들과 자신이 가진 미디어를 공유할 수 있다는 점입니다.</p>
+
+  <p>또 다른 강점은 클라이언트 프로그램이 다양한 플랫폼에서 지원된다는 점입니다. 데스크톱은 물론이고 안드로이드를 사용한 TV나 핸드폰 등에서도 인터넷만 가능하다면 영상을 어디서나 시청 할 수 있습니다.</p>
+</blockquote>
+
+<p><strong>플렉스</strong>에 대한 더 자세한 사용법은 <strong><a href="https://www.plex.tv/">여기</a></strong>를 참고하시길 바랍니다.</p>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>

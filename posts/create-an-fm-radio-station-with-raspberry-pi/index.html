@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[RPI] 라즈베리파이로 FM 라디오 방송국 만들기 - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[RPI] 라즈베리파이로 FM 라디오 방송국 만들기 | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[RPI] 라즈베리파이로 FM 라디오 방송국 만들기 | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="라즈베리파이를 FM 송신기로!" />
+	<meta property="og:description" content="라즈베리파이를 FM 송신기로!" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/create-an-fm-radio-station-with-raspberry-pi/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/create-an-fm-radio-station-with-raspberry-pi/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[RPI] 라즈베리파이로 FM 라디오 방송국 만들기 | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[RPI] 라즈베리파이로 FM 라디오 방송국 만들기</div>
+	<span class="post-date">
+		<time>18 Dec 2021</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Raspberry PI">
+					<span>Raspberry PI</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#FM Radio">
+					<span>FM Radio</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p>이번에는 라즈베리파이로 간단하게 FM 라디오 송신기를 만들어 보겠습니다.</p>
+
+<p><br />
+<strong>준비물</strong></p>
+
+<ul>
+  <li>라즈베리파이</li>
+  <li>점퍼선 1개 (암암 또는 암수)</li>
+  <li>라디오</li>
+</ul>
+
+<h2 id="점퍼선-연결">점퍼선 연결</h2>
+
+<p>안테나 역할을 할 점퍼선을 <strong>GPIO 4번핀</strong>(7번째 핀) 에 연결합니다.
+<img src="https://docs.microsoft.com/en-us/dotnet/iot/media/gpio-pinout-diagram.png" alt="Raspberry PI GPIO Pin Map" />
+<img src="https://blog.ny64.kr/assets/images/2021-12-18-create-an-fm-radio-station-with-raspberry-pi/raspberrypi-gpio-pin.jpg" alt="Raspberry PI GPIO Pin" width="75%" /></p>
+
+<p><br /></p>
+
+<h2 id="프로그램-설치">프로그램 설치</h2>
+
+<p>점퍼선을 연결한 다음 이제 FM 송출을 할 수 있는 프로그램을 설치합시다.</p>
+
+<p>만약 OS가 라즈비안이 아니라 우분투라면 <code class="language-plaintext highlighter-rouge">sudo apt-get install libraspberrypi-dev</code> 명령어를 추가로 실행해 주세요.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get update
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>make build-essential
+<span class="nb">sudo </span>apt-get <span class="nb">install </span>sox libsox-fmt-mp3
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>깃허브에서 레파지토리를 클론한 다음, 실행 파일을 빌드해 줍시다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git clone https://github.com/markondej/fm_transmitter
+<span class="nb">cd </span>fm_transmitter
+make
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="라디오-송술">라디오 송술</h2>
+
+<p>라즈베리파이에 송출할 <strong>무압축 WAV 형식</strong> 파일을 라즈베리파이로 전송해 줍니다.</p>
+
+<p>만약 MP3 파일이라면 아래 명령어를 사용해 변환해 주세요.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sox mp3파일.mp3 <span class="nt">-r</span> 22050 <span class="nt">-c</span> 1 <span class="nt">-b</span> 16 <span class="nt">-t</span> wav wav파일.wav
+</code></pre></div></div>
+
+<p>이제 아래 명령어로 FM 라디오를 송출을 시작합니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># 97.7 Mhz로 wav파일.wav 송출</span>
+<span class="nb">sudo</span> ./fm_transmitter <span class="nt">-f</span> 97.7 <span class="nt">-r</span> wav파일.wav
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>위처럼 실행한 다음 라디오로 주파수를 맞춰보면 라디오에서 음악이 재생되는 것을 확인할 수 있습니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-12-18-create-an-fm-radio-station-with-raspberry-pi/radio_app.jpg" alt="Radio App" width="50%" /></p>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>

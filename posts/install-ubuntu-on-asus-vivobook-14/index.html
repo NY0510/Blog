@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[Ubuntu] Asus 비보북 14 우분투 설치기 - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[Ubuntu] Asus 비보북 14 우분투 설치기 | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[Ubuntu] Asus 비보북 14 우분투 설치기 | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="설치 후 내 노트북에서만 발생하는 문제 해결까지" />
+	<meta property="og:description" content="설치 후 내 노트북에서만 발생하는 문제 해결까지" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/install-ubuntu-on-asus-vivobook-14/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/install-ubuntu-on-asus-vivobook-14/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[Ubuntu] Asus 비보북 14 우분투 설치기 | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[Ubuntu] Asus 비보북 14 우분투 설치기</div>
+	<span class="post-date">
+		<time>04 Dec 2021</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Ubuntu">
+					<span>Ubuntu</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Laptop">
+					<span>Laptop</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p>시작하기에 앞서, 이 글은 <strong>우분투 설치법에 대한 글이 아닙니다</strong></p>
+
+<p>단지 제 노트북인 <strong>Asus 비보북14</strong> 에서만 발생하는 문제 해별법을 설명해둔 글입니다</p>
+
+<p><strong>이 글은 계속 업데이트될 예정입니다</strong></p>
+
+<h2 id="ubuntu--windows">Ubuntu &gt; Windows</h2>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-12-04-install-ubuntu-on-asus-vivobook-14/windows-meme.png" alt="윈도우 업데이트 짤" width="40%" /></p>
+
+<p><br /></p>
+
+<h2 id="no-wifi-adapter-found-문제">No Wifi Adapter Found 문제</h2>
+
+<p>노트북(Asus 비보북 14)에 우분투를 설치하고 보니, 아래와 같이 <strong>No Wifi Adapter Found</strong> 라는 말과 함께 와이파이 어댑터를 찾지 못하고 있었습니다</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-12-04-install-ubuntu-on-asus-vivobook-14/ubuntu-no-wifi.png" alt="No Wifi Adapter Found" width="80%" /></p>
+
+<p>이 문제를 해결하기 위해 몇 주 동안 삽질을 해보았지만 결국 해결하지 못해서 할 수 없이 다이소에서 산 5,000원짜리 USB형 WiFi 동글을 사용해 인터넷을 사용하던 중이었습니다</p>
+
+<p><del>오늘도 어김없이</del> 와이파이 문제에 대해 구글링을 하고 있던 와중에 <strong>윈도우에서 빠른 시작을 비활성화</strong>하면 해결된다는 한 게시물을 발견했습니다</p>
+
+<p>혹시 몰라 한번 시도해 봤더니 문제가 바로 해결되었습니다</p>
+
+<p><br /></p>
+
+<p>이 문제는 어이없을 정도로 간단하게 해결할 수 있습니다</p>
+
+<p>윈도우와 우분투를 듀얼부팅으로 사용 중인 겅우, 윈도우 설정에서 빠른 시작 옵션을 비활성화해주면 됩니다</p>
+
+<p><strong>제어판 &gt; 전원 옵션 &gt; 전원 단추 작동 설정</strong> 순으로 들어간 다음에</p>
+
+<p>현재 사용할 수 없는 설정 변경을 클릭하고, 종료 설정에 빠른 시작 켜기 체크를 해제합니다</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-12-04-install-ubuntu-on-asus-vivobook-14/windows-setting.png" alt="윈도우 빠른시작 비활성화" width="68%" /></p>
+
+<p>이제 다시 우분투로 부팅하면 와이파이가 작동합니다</p>
+
+<p><br /></p>
+
+<h2 id="충전기-연결-시-밝기-초기화-문제">충전기 연결 시 밝기 초기화 문제</h2>
+
+<p>충전기를 연결 / 해제시 노트북의 <strong>밝기가 0으로 초기화</strong>되는 문제가 있습니다</p>
+
+<p>아래 명령어를 실행해서 관련 서비스를 종료시키면 해결됩니다</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>systemctl stop systemd-backlight@backlight:acpi_video1.service
+<span class="nb">sudo </span>systemctl disable systemd-backlight@backlight:acpi_video1.service
+</code></pre></div></div>
+
+<p>재부팅 시 종료시킨 서비스가 다시 살아남으로 시작 프로그램에 등록합시다</p>
+
+<p><br /></p>
+
+<h2 id="배터리-충전-제한">배터리 충전 제한</h2>
+
+<p>이건 문제 해결법은 아니지만, 인터넷에 제대로된 방법이 나와있지 않아 추가합니다</p>
+
+<p>배터리 수명을 늘리기 위해 80% 충전 제한을 설정하는 기능입니다</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>crontab <span class="nt">-e</span>
+</code></pre></div></div>
+
+<p>Crontab에 다음 명령어를 추가합니다</p>
+
+<p><code class="language-plaintext highlighter-rouge">@reboot echo 80 | sudo tee /sys/class/power_supply/BAT0/charge_control_end_threshold </code></p>
+
+<p><br /></p>
+
+<h2 id="키보드-fn키-동작-문제">키보드 FN키 동작 문제</h2>
+
+<p>일부 키보드에서 FN(F1 ~ F12) 키가 화면 밝기 조절 등 단축키로만 작동해서 FN 키를 사용할 수 없는 문제가 있습니다</p>
+
+<p>간단하게 아래 명령어 실행으로 해결됩니다</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo </span>0 | <span class="nb">sudo tee</span> /sys/module/hid_apple/parameters/fnmode
+<span class="nb">echo</span> <span class="s2">"options hid_apple fnmode=0"</span> | <span class="nb">sudo tee</span> <span class="nt">-a</span> /etc/modprobe.d/hid_apple.conf
+</code></pre></div></div>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>

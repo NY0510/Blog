@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[RPI] Fail2ban으로 SSH 보안 강화하기 (1) - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[RPI] Fail2ban으로 SSH 보안 강화하기 (1) | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[RPI] Fail2ban으로 SSH 보안 강화하기 (1) | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="자동 IP 차단으로 SSH 보안을 강화하자" />
+	<meta property="og:description" content="자동 IP 차단으로 SSH 보안을 강화하자" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/setting-up-fail2ban-on-raspberry-pi/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/setting-up-fail2ban-on-raspberry-pi/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[RPI] Fail2ban으로 SSH 보안 강화하기 (1) | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[RPI] Fail2ban으로 SSH 보안 강화하기 (1)</div>
+	<span class="post-date">
+		<time>24 Oct 2021</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Raspberry PI">
+					<span>Raspberry PI</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#Fail2ban">
+					<span>Fail2ban</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#SSH">
+					<span>SSH</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p>만약 라즈베리파이를 서버로 쓰고, 외부와 연결되어 있다면 혹시나 모를 <strong>Brute-force</strong> 혹은 <strong>무차별 대입 공격</strong>으로 인한 피해 사고를 예방하기 위해</p>
+
+<p>Fail2ban의 설치와 사용법을 알아봅시다.</p>
+
+<h2 id="fail2ban의-필요성">Fail2ban의 필요성</h2>
+
+<p>설치에 앞서 먼저 Fail2ban의 필요성을 알아봅시다.</p>
+
+<p>만약 라즈베리파이가 외부 네트워크에 연결되어 있다면 아래 명령어를 한번 실행해 보세요.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>journalctl <span class="nt">-f</span>
+</code></pre></div></div>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-10-24-setting-up-fail2ban-on-raspberry-pi/journalctl -f.png" alt="journalctl -f 실행 결과" width="100%" /></p>
+
+<p>저는 이미 <strong>Fail2ban</strong>과 <strong>OTP</strong> 설정이 완료되어 있어 로그인 시도는 보이지 않지만, 이러한 보안 설정이 되어있지 않을 경우에는</p>
+
+<p><code class="language-plaintext highlighter-rouge">Failed password for XXX from X.X.X.X port XXX</code> 이러한 식으로 <strong>무차별 대입 공격 시도</strong>가 수없이 들어오는 것을 확인할 수 있습니다.</p>
+
+<p><strong><del>글로벌한 내 서버!</del></strong></p>
+
+<p>Fail2ban이 이러한 SSH 로그인 시도를 필터를 통해 걸러주고, 자동으로 차단 해주는 역할을 합니다.</p>
+
+<p><br /></p>
+
+<h2 id="설치">설치</h2>
+
+<p>아래 명령어로 fail2ban을 설치해 줍니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>fail2ban
+</code></pre></div></div>
+
+<p>설치가 완료되면 자동으로 서비스를 시작하지만 <code class="language-plaintext highlighter-rouge">sudo service fail2ban status</code> 명령어를 통해 실행 중인지 확인할 수 있습니다.</p>
+
+<p><br /></p>
+
+<h2 id="설정">설정</h2>
+
+<p>아래 명령어를 통해 새로운 파일을 생성합니다</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>nano /etc/fail2ban/jail.local
+</code></pre></div></div>
+
+<p>아래 내용을 보고 원하는 데로 수정한 후 저장합니다.</p>
+
+<p>만약 SSH에서 22번이 아닌 다른 포트로 변경하였다면 마지막 부분에 port도 변경해 줘야 합니다.</p>
+
+<div class="language-ini highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[DEFAULT]</span>
+<span class="c"># findtime동안 maxretry의 로그인 시도가 있는 IP를 bantime만큼 차단
+</span><span class="py">findtime</span> <span class="p">=</span> <span class="s">1d</span>
+
+<span class="c"># 로그인 시도 허용 횟수
+</span><span class="py">maxretry</span> <span class="p">=</span> <span class="s">5</span>
+
+<span class="c"># 차단 기간 (-1은 영구차단)
+</span><span class="py">bantime</span> <span class="p">=</span> <span class="s">1w</span>
+
+<span class="py">backend</span> <span class="p">=</span> <span class="s">systemd</span>
+
+<span class="c"># 이메일 알림 설정
+</span><span class="py">destemail</span> <span class="p">=</span>
+<span class="py">sendername</span> <span class="p">=</span>
+<span class="py">mta</span> <span class="p">=</span> <span class="s">sendmail</span>
+
+<span class="c"># IP 화이트리스트 (이 IP 대역은 절대 차단당하지 않음)
+</span><span class="py">ignoreip</span> <span class="p">=</span> <span class="s">127.0.0.1/8 192.168.0.0/24</span>
+
+<span class="nn">[sshd]</span>
+<span class="py">enabled</span> <span class="p">=</span> <span class="s">true</span>
+<span class="py">port</span> <span class="p">=</span> <span class="s">22</span>
+<span class="py">filter</span> <span class="p">=</span> <span class="s">sshd</span>
+<span class="py">logpath</span> <span class="p">=</span> <span class="s">/var/log/fail2ban-ssh.log</span>
+</code></pre></div></div>
+
+<p>라즈베리파이를 재부팅 하거나, <code class="language-plaintext highlighter-rouge">sudo service fail2ban restart</code> 명령어를 통해 변경 사항을 적용해 줍니다.</p>
+
+<p><br /></p>
+
+<h2 id="사용법">사용법</h2>
+
+<p>이 포스트에서는 간단한 사용법만 소개하니, 더 자세한 사용법을 알고 싶으신 분들은 <a href="https://www.fail2ban.org/wiki/index.php/Main_Page">여기</a>를 참고해 주시길 바랍니다.</p>
+
+<h3 id="차단된-ip-목록-보기">차단된 IP 목록 보기</h3>
+
+<p>아래 명령어를 통해 sshd 필터에 차단된 IP들을 확인할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>fail2ban-client status sshd
+</code></pre></div></div>
+
+<h3 id="ip-차단-해제">IP 차단 해제</h3>
+
+<p>아래 명령어로 차단된 IP를 수동으로 차단 해제할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>fail2ban-client <span class="nb">set </span>sshd unbanip &lt;IP&gt;
+</code></pre></div></div>
+
+<h3 id="ip-차단">IP 차단</h3>
+
+<p>아래 명령어를 통해 수동으로 IP를 차단할 수 있습니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>fail2ban-client <span class="nb">set </span>sshd banip &lt;IP&gt;
+</code></pre></div></div>
+
+<blockquote>
+  <p>이렇게 SSH 보안을 강화하는 fail2ban을 설치해 보았습니다.</p>
+
+  <p>이제 공격에 완벽히 안전한 것은 아니지만 전세계에서 들어오는 브루투포스 공격을 어느 정도 막아낼 수 있게 되었습니다.</p>
+</blockquote>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="shortcut icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="https://blog.ny64.kr/favicon.ico" type="image/x-icon" />
+	<title>[RPI] 2FA인증으로 SSH 보안 강화하기 (2) - NY64의 무한삽질 블로그</title>
+
+	<!-- Meta -->
+	<meta http-equiv="Title" content="[RPI] 2FA인증으로 SSH 보안 강화하기 (2) | NY64의 무한삽질 블로그" />
+	<meta property="og:title" content="[RPI] 2FA인증으로 SSH 보안 강화하기 (2) | NY64의 무한삽질 블로그" />
+	<meta property="og:locale" content="ko_KR" />
+	<meta name="description" content="OTP 인증으로 SSH 보안을 강화하자" />
+	<meta property="og:description" content="OTP 인증으로 SSH 보안을 강화하자" />
+	<link rel="canonical" href="https://blog.ny64.kr/posts/setting-up-ssh-otp-on-raspberry-pi/" />
+	<meta property="og:url" content="https://blog.ny64.kr/posts/setting-up-ssh-otp-on-raspberry-pi/" />
+	<meta property="og:site_name" content="NY64의 무한삽질 블로그" />
+	<meta name="twitter:card" content="summary" />
+	<meta property="twitter:title" content="[RPI] 2FA인증으로 SSH 보안 강화하기 (2) | NY64의 무한삽질 블로그" />
+	<meta property="og:type" content="blog" />
+	<meta http-equiv="Author" content="NY0510" />
+	<meta property="og:author" content="NY0510" />
+	<meta http-equiv="Publisher" content="NY0510" />
+
+	<!-- 포스트 설정에 image 있으면 미리보기 이미지로 설정하고 없으면 기본 이미지로 -->
+	
+	<meta property="og:image" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	<meta name="twitter:card" content="https://blog.ny64.kr/assets/images/og/background.png" />
+	
+	<!-- <meta name="theme-color" content="#2DFF14" /> -->
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="https://blog.ny64.kr/assets/css/main.css" type="text/css" />
+
+	<!-- Font -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="https://fonts.googleapis.com/earlyaccess/notosanskr.css" />
+	<link href="https://cdn.jsdelivr.net/gh/joungkyun/font-d2coding/d2coding.css" rel="stylesheet" type="text/css" />
+	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+
+	<link rel="alternate" type="application/rss+xml" title="RSS Feed for NY64의 무한삽질 블로그" href="/feed.xml" />
+
+	
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S51V5E7PLR"></script>
+<script>
+	window.dataLayer = window.dataLayer || [];
+	function gtag() {
+		dataLayer.push(arguments);
+	}
+	gtag("js", new Date());
+
+	gtag("config", "G-S51V5E7PLR");
+</script>
+
+
+</head>
+
+	<body>
+		<div class="content-container"><script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://rawcdn.githack.com/mburakerman/prognroll/0feda211643153bce2c69de32ea1b39cdc64ffbe/src/prognroll.js"></script>
+<script type="text/javascript">
+	$(function () {
+		// height: 4,
+		$("body").prognroll({ color: "#555" });
+		// $(".content-container").prognroll({ custom: true });
+	});
+</script>
+
+<header>
+	<div class="header-small">
+		<a href="https://blog.ny64.kr">NY64의 무한삽질 블로그</a>
+	</div>
+</header>
+<div class="post">
+	<div class="post-title">[RPI] 2FA인증으로 SSH 보안 강화하기 (2)</div>
+	<span class="post-date">
+		<time>27 Oct 2021</time>
+	</span>
+	<div class="post-tag">
+		<ul>
+			
+			<li>
+				<a href="https://blog.ny64.kr/tags#Raspberry PI">
+					<span>Raspberry PI</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#OTP">
+					<span>OTP</span>
+				</a>
+			</li>
+
+			 
+			<li>
+				<a href="https://blog.ny64.kr/tags#SSH">
+					<span>SSH</span>
+				</a>
+			</li>
+
+			 
+			<a href="https://hits.seeyoufarm.com">
+				<style>
+					.hits {
+						width: auto;
+						height: auto;
+						max-width: 110px;
+						max-height: 25px;
+					}
+				</style>
+				<img
+					class="hits"
+					src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fblog.ny64.kr&count_bg=%23434343&title_bg=%237C7C7C&icon=checkmarx.svg&icon_color=%23FFFFFF&title=%EB%B0%A9%EB%AC%B8%EC%88%98&edge_flat=false"
+				/>
+			</a>
+		</ul>
+	</div>
+
+	<p>지난 포스트 에서는 Fail2ban을 사용해 라즈베리파이의 SSH 보안을 강화해 봤습니다.</p>
+
+<p>이번에는 Fail2ban에 이어 OTP 인증으로 SSH 보안을 강화해 봅시다.</p>
+
+<h2 id="google-authenticator-설치">Google Authenticator 설치</h2>
+
+<p>우리가 사용할 OTP 서비스는 Google의 Authenticator입니다.</p>
+
+<p>아래 명령어로 설치 해 줍시다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-get <span class="nb">install </span>libpam-google-authenticator
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="otp-설정">OTP 설정</h2>
+
+<blockquote>
+  <p><strong><em>진행 하기 전에 만약 루트 게정으로 로그인되어 있다면 SSH를 사용할 사용자 계정으로 로그인 해야 합니다.</em></strong></p>
+</blockquote>
+
+<p>아래 명령어로 설치 프로그램을 실행해 줍니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>google-authenticator
+</code></pre></div></div>
+
+<p>조금 기다리면 아래와 같이 <strong>Time based</strong>인 인증을 사용할 것인지 물어보는데, <strong>Y</strong>를 입력해 줍니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Do you want authentication tokens to be time-based <span class="o">(</span>y/n<span class="o">)</span>
+</code></pre></div></div>
+
+<p>그럼 아래와 같이 QR코드와 복구 코드가 나옵니다.</p>
+
+<p>이 정보는 다시 확인할 수 없으니, 안전한 곳에 기록해 줍시다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-10-27-setting-up-ssh-otp-on-raspberry-pi\otp-setting.png" alt="OTP 설정 화면" width="95%" /></p>
+
+<p><br /></p>
+
+<h3 id="otp-등록하기">OTP 등록하기</h3>
+
+<p>OTP 코드를 생성하기 위해서는 코드를 생성해주는 앱이 필요합니다.</p>
+
+<p><strong><a href="https://apps.apple.com/us/app/google-authenticator/id388497605">Apple App Store</a></strong>나 <strong><a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Google Play Store</a></strong>에서 Google Authenticator 앱을 설치합니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-10-27-setting-up-ssh-otp-on-raspberry-pi/app-store.png" alt="Google Authenticator 설치화면" /></p>
+
+<p><br /></p>
+
+<p>앱을 실행하면 아래와 같은 화면이 나올텐데, <strong>Scan QR code</strong>를 눌러 아까 콘솔에 출력된 QR코드를 스캔합니다.</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-10-27-setting-up-ssh-otp-on-raspberry-pi/otp-inapp-screen.png" alt="Google Authenticator 실행 후 화면" /></p>
+
+<p><br /></p>
+
+<p>그러면 아래와 같이 OTP가 등록된 것을 확인할 수 있습니다</p>
+
+<p><img src="https://blog.ny64.kr/assets/images/2021-10-27-setting-up-ssh-otp-on-raspberry-pi/otp-after-qr-scan-screen.png" alt="Google Authenticator OTP 등록 후 화면" /></p>
+
+<p><br /></p>
+
+<h3 id="서버측-설정">서버측 설정</h3>
+
+<p>이제 서버측에서 해야 할 설정을 해봅시다.</p>
+
+<p>아까 QR코드가 나왔던 콘솔을 보면 <code class="language-plaintext highlighter-rouge">.google_authenticator</code> 파일을 추가할 것인지 물어봅니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Do you want me to update your <span class="s2">"/.google_authenticator"</span> file? <span class="o">(</span>y/n<span class="o">)</span>
+</code></pre></div></div>
+
+<p>이 파일이 없으면 OTP가 작동을 하지 않으니 <strong>Y</strong>를 입력해 줍니다.</p>
+
+<p><br /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Do you want to disallow multiple uses of the same authentication token? This restricts you to one login about every 30s,
+but it increases your chances to notice or even prevent man-in-the-middle attacks (y/n)
+</code></pre></div></div>
+
+<p>여러 사용자가 하나의 코드를 가지고 인증하는 것을 비활성화 할것인지 선택하는 설정입니다.</p>
+
+<p><strong>Man-in-the-middle attack (코드를 탈취해서 사용하는 공격)</strong>을 막아주니 <strong>Y</strong>를 입력해 기능을 비활성화 하는 것을 추천합니다.</p>
+
+<p><br /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>By default, a new token is generated every 30 seconds by the mobile app. In order to compensate for possible time-skew
+between the client and the server, we allow an extra token before and after the current time.
+This allows for a time skew of up to 30 seconds between authentication server and client.
+If you experience problems with poor time synchronization, you can increase the window from its default size of 3 permitted
+codes (one previous code, the current code, the next code) to 17 permitted codes (the 8 previous codes, the current code, and the 8 next codes).
+This will permit for a time skew of up to 4 minutes between client and server. Do you want to do so? (y/n)
+</code></pre></div></div>
+
+<p>OTP 토큰은 30초마다 초기화 되지만 서버의 시간 동기화 문제로 토큰 주기가 안 맞는 상황이 발생할 수 있으니,</p>
+
+<p>이런 현상을 방지하기 위해 이전 코드와 다음 코드로도 인증이 가능하게 설정하는 항목입니다.</p>
+
+<p>보안을 위해서라면 사용하지 않는 것을 추천합니다.</p>
+
+<p><br /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>If the computer that you are logging into isn't hardened against brute-force login attempts, you can enable rate-limiting
+for the authentication module. By default, this limits attackers to no more than 3 login attempts every 30s.
+Do you wantto enable rate-limiting? (y/n)
+</code></pre></div></div>
+
+<p>사용자가 코드를 3번 이상 틀리면 차단하는 기능입니다.</p>
+
+<p>자신이 원하는 대로 설정하면 됩니다.</p>
+
+<p><br /></p>
+
+<h3 id="ssh-설정">SSH 설정</h3>
+
+<p>이제 SSH에서 OTP 인증을 사용할 수 있도록 설정합시다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>nano /etc/pam.d/sshd
+</code></pre></div></div>
+
+<p>설정 파일을 열고, 아래로 내리다 보면 <code class="language-plaintext highlighter-rouge">@include common-password</code>가 보일겁니다.</p>
+
+<p>바로 밑에 아래 항목을 추가해 줍니다.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>auth required pam_google_authenticator.so
+</code></pre></div></div>
+
+<p><br /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>nano /etc/ssh/sshd_config
+</code></pre></div></div>
+
+<p>그런 다음 SSH 설정파일을 열고, 아래 항목을 찾아 <code class="language-plaintext highlighter-rouge">yes</code>로 바꿔줍니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ChallengeResponseAuthentication no
+</code></pre></div></div>
+
+<p><br /></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>service sshd restart
+</code></pre></div></div>
+
+<p>이제 <code class="language-plaintext highlighter-rouge">sshd</code>를 재시작 합니다.</p>
+
+<p><br /></p>
+
+<h2 id="작동-확인">작동 확인</h2>
+
+<p>이제 다시 서버에 SSH로 접속해봅시다.</p>
+
+<p><strong>Password</strong>를 물어본 다음 <strong>Verification code</strong>를 물어본다면 성공입니다.</p>
+
+<p>아까 설정한 OTP앱의 코드를 입력하면 로그인이 됩니다.</p>
+
+
+	<br /><br />
+	<!-- Ad -->
+	<script>
+	if (window.matchMedia("( min-width: 1024px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-BGxutzmFIQKTCsBJ" data-ad-width="728" data-ad-height="90"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+	if (window.matchMedia("( max-width: 768px )").matches == true) {
+		document.write(
+			'<ins class="kakao_ad_area" style="display:none;" data-ad-unit="DAN-ZqpdeoPqvpUg8nO4"" data-ad-width="300" data-ad-height="250"></ins><script type="text/javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async><\/script>'
+		);
+	}
+</script>
+
+
+	<!-- Comment -->
+	
+	<div class="post-comment">
+		<section id="comment_thread"></section>
+		<script src="https://utteranc.es/client.js" repo="NY0510/Blog-Comment" issue-term="title" label="Comment" theme="github-light" crossorigin="anonymous" async></script>
+
+	</div>
+	
+</div>
+ <!-- Documents about icons are here: http://fontawesome.io/icons/ -->
+<link href="https://rawcdn.githack.com/hung1001/font-awesome-pro/0ac23ca/css/all.css" rel="stylesheet" type="text/css" />
+<div class="footer">
+	<hr />
+	<div class="footer-link">
+		  
+		<a href="https://discord.com/users/690148325604720660"><i class="fab fa-discord" aria-hidden="true"></i></a>
+		 
+		<a href="https://www.youtube.com/channel/UCbPHBnYHcUYcWfpIEtn60WA"><i class="fab fa-youtube" aria-hidden="true"></i></a>
+		  
+		<a href="https://github.com/NY0510"><i class="fab fa-github" aria-hidden="true"></i></a>
+		          
+		<a href="mailto:me@ny64.kr"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+		
+	</div>
+	© 2021 NY64. All rights reserved.
+</div>
+</div>
+	</body>
+</html>
